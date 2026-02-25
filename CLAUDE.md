@@ -40,6 +40,7 @@ npm test                 # Run all tests
 | `/sweep` | Auto: every 3 features (or manual) |
 | `/doc-garden` | Auto: runs with audit (or manual) |
 | `/retrospective` | Auto: every 10 features (or manual) |
+| `/update-roadmap` | Quarterly: strategic roadmap refresh with web research |
 
 ## Key Rules (Non-Negotiable)
 

@@ -25,6 +25,7 @@ User idea → /add-feature → tech-debt-tracker.md → /develop-feature → /va
 | `/sweep` | Golden principles enforcement | Every 3 features |
 | `/doc-garden` | Documentation freshness scan | With audits |
 | `/retrospective` | Workflow self-improvement | Every 10 features |
+| `/update-roadmap` | Strategic roadmap refresh | Quarterly (manual) |
 
 ## Maintenance Cadence
 
