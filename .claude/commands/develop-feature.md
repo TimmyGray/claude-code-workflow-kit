@@ -166,8 +166,17 @@ Use the ports allocated in Phase 0. This ensures multiple agents can run dev ser
    - If rebase succeeds, force-push: `git push --force-with-lease`
    - If conflicts in **bookkeeping files only**: resolve by accepting main + re-applying changes
    - If conflicts in **source code**: abort rebase, stop and report
+   - Retry the merge check. If still not mergeable after one rebase attempt, stop and report
 3. Merge: `gh pr merge --squash --delete-branch`
-4. Switch to main repo root (from Phase 1.5), run `git pull origin main`
+4. If merge fails with **"head branch is not up to date"**:
+   - `git fetch origin main && git rebase origin/main`
+   - Resolve any conflicts (bookkeeping only — abort and report if source code conflicts)
+   - Run the project's validation suite to confirm nothing broke
+   - `git push --force-with-lease`
+   - Wait for CI checks to pass on the updated branch
+   - Retry: `gh pr merge --squash --delete-branch`
+   - If merge still fails after one recovery attempt, stop and report
+5. Switch to main repo root (from Phase 1.5), run `git pull origin main`
 
 ### Phase 11: Bookkeeping (Post-Merge)
 
