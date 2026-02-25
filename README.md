@@ -78,6 +78,7 @@ This command will:
 | `/doc-garden` | Fix stale/broken docs, validate cross-links | With audits (auto) |
 | `/retrospective` | Analyze patterns, promote findings to lint rules | Every 10 features (auto) |
 | `/i18n-dev` | i18n development guidelines | When adding UI strings |
+| `/update-roadmap` | Research-driven strategic roadmap refresh | Quarterly or when roadmap feels stale |
 
 ## File Structure
 
@@ -114,7 +115,8 @@ your-project/
 │       ├── audit-service.md          # Codebase audit
 │       ├── doc-garden.md             # Documentation gardening
 │       ├── retrospective.md          # Workflow retrospective
-│       └── i18n-dev.md               # i18n guidelines
+│       ├── i18n-dev.md               # i18n guidelines
+│       └── update-roadmap.md        # Strategic roadmap refresh
 └── .gitignore                         # Includes active-work.json, worktrees
 ```
 

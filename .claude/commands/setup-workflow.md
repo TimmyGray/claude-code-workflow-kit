@@ -157,6 +157,11 @@ Review each command file in `.claude/commands/` and adapt project-specific refer
 
 6. **add-feature.md**: Update design principle checks to match PRODUCT_SENSE.md
 
+7. **update-roadmap.md**: Verify the command is usable for this project
+   - Confirm that `docs/PRODUCT_SENSE.md`, `docs/PLANS.md`, and `docs/exec-plans/tech-debt-tracker.md` exist and are populated
+   - The command's web research phase will auto-detect the project's domain from these docs
+   - No project-specific edits needed — the command is domain-agnostic by design
+
 ### Phase 5: Initial Validation
 
 1. Run the project's full validation suite (or as much as possible)
@@ -196,6 +201,7 @@ Review each command file in `.claude/commands/` and adapt project-specific refer
 1. Review the generated docs and adjust anything that doesn't match your preferences
 2. Run `/add-feature` to add more tasks to the backlog
 3. Run `/develop-feature` to start autonomous development
+4. Run `/update-roadmap` quarterly to refresh the roadmap with industry research
 ```
 
 ## Important Rules
