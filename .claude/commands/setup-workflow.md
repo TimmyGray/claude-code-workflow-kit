@@ -9,8 +9,34 @@ $ARGUMENTS — Optional: short description of the project or specific setup inst
 - The project must be a git repository
 - The workflow kit files (CLAUDE.md, docs/, .claude/commands/) must already be copied into the project root
 - Node.js project recommended (npm scripts), but adaptable to other stacks
+- `gh` CLI installed and authenticated (required for remote repository creation in Phase 0)
 
 ## Workflow
+
+### Phase 0: Remote Repository Check
+
+Before deep analysis, ensure the project has a usable remote so that Phase 6 (Commit & Report) can push.
+
+1. **Detect existing remote**: Run `git remote get-url origin 2>/dev/null`
+2. **If a remote URL is returned**: Log it and proceed to Phase 1.
+3. **If no remote exists** (command fails or returns empty):
+   a. Inform the user: *"No remote `origin` detected for this repository."*
+   b. Ask the user (single question, must wait for an answer):
+      - **Option A** — Create a new repository under **your personal GitHub account**
+      - **Option B** — Create a new repository under a **GitHub organization** (you will be asked for the org name)
+      - **Option C** — Skip remote creation (the user will set it up manually later)
+   c. **If Option A**:
+      - Derive repo name from the directory name (e.g., `basename $(git rev-parse --show-toplevel)`)
+      - Ask whether the repo should be **public** or **private**
+      - Run: `gh repo create <repo-name> --source=. --private --push` (or `--public`)
+   d. **If Option B**:
+      - Ask for the **organization name**
+      - Ask whether the repo should be **public** or **private**
+      - Run: `gh repo create <org>/<repo-name> --source=. --private --push` (or `--public`)
+   e. **If Option C**:
+      - Warn: *"Remote creation skipped. Phase 6 will commit locally but will NOT push. You must add a remote before running `/develop-feature`."*
+      - Set an internal flag so Phase 6 skips the `git push` step
+4. **Verify**: Run `git remote get-url origin` again. If it succeeds, confirm to the user and continue. If it fails (and Option C was not selected), retry once or report the error and stop.
 
 ### Phase 1: Project Discovery
 
@@ -173,7 +199,7 @@ Review each command file in `.claude/commands/` and adapt project-specific refer
 
 1. Stage all new/modified documentation files explicitly by name
 2. Commit: `"chore: initialize autonomous workflow (setup-workflow)"`
-3. Push to main
+3. **Push to main** — unless Phase 0 set the "skip push" flag (Option C). If skipped, inform the user: *"Commit created locally. Add a remote and push manually when ready."*
 4. Present a setup summary to the user:
 
 ```
