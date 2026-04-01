@@ -18,7 +18,7 @@ If no PR number:
 
 ### 2. Parallel Specialized Reviews
 
-Launch these reviews as parallel Task agents (using `code-review-advisor` subagent type). Each agent reviews the diff from a different perspective:
+Launch these reviews as parallel Task agents (`subagent_type: "generalPurpose"`). Each agent reviews the diff from a different perspective:
 
 **Agent A: Security Review**
 - Read `docs/SECURITY.md` for context
@@ -36,15 +36,15 @@ Launch these reviews as parallel Task agents (using `code-review-advisor` subage
 
 **Agent C: Pattern & Convention Review**
 - Read `docs/CONVENTIONS.md` for context
-- Check: project conventions are followed (UI components, styling, state management)
-- Check: proper validation patterns (DTOs, schemas, etc.)
-- Check: i18n compliance if applicable (all user-facing strings use translation system)
+- Check: Expo / React Native patterns (hooks, navigation, StyleSheet or chosen UI lib)
+- Check: subscription / lock logic matches `docs/PRODUCT_SENSE.md` (single source of truth for premium)
+- Check: i18n compliance **only if** i18n is active (see `.claude/commands/i18n-dev.md` — currently inactive)
 - Severity: critical or warning
 
 **Agent D: Test Coverage Review**
 - Read `docs/RELIABILITY.md` for context
-- Check: new functionality has tests, edge cases covered, tests deterministic
-- Check: no test files with timing dependencies or flaky patterns
+- Check: new logic (subscription, locks, AI fallback) has or updates tests when Jest is enabled
+- Check: test file patterns `*.test.ts`, `*.test.tsx` under `apps/zenpulse-mobile` when present
 - Severity: warning or suggestion
 
 ### 3. Aggregate Results

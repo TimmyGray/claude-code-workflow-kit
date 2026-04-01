@@ -18,9 +18,7 @@ Before task selection, set up for safe parallel execution with other agents. **P
    - If `started_at` is older than 24 hours → remove the entry (safety net for crashed sessions)
    - Otherwise, treat the entry as **active** — do not remove it
 3. Write the cleaned registry using atomic rename: write to `active-work.json.tmp`, then `mv active-work.json.tmp active-work.json`
-4. **Port allocation**: Find the lowest available slot number (0, 1, 2, ...) not used by any remaining session. Determine base ports from your project config (check `ARCHITECTURE.md` or `.env.example`):
-   - Slot 0: default ports (e.g., backend 3001, frontend 5173)
-   - Slot N: base_port + N for each service
+4. **Port allocation**: Find the lowest available slot number (0, 1, 2, ...) not used by any remaining session. **ZenPulse (Expo)** — Metro bundler defaults to **8081**; Expo DevTools often use **19000** range. For parallel agents, pass an explicit port, e.g. `npx expo start --port $((8081 + slot))` from `apps/zenpulse-mobile`. See `ARCHITECTURE.md` for stack details.
 5. Note the list of currently active `task_id`s — these are off-limits for task selection
 6. Store the allocated ports and slot number for use in later phases
 
@@ -95,10 +93,10 @@ Isolate the working tree so multiple `/develop-feature` agents can run concurren
 
 Use the ports allocated in Phase 0. This ensures multiple agents can run dev servers simultaneously.
 
-1. Start dev servers in background using allocated ports (check ARCHITECTURE.md for the correct commands)
-2. Wait for servers to be ready (poll health endpoints, max 30s)
-3. **Deep browser validation** (if project has a frontend):
-   - Use `browser_navigate` to the frontend URL
+1. Start the Expo dev server in background from `apps/zenpulse-mobile` using the allocated Metro port (see Phase 0). For **web**, Expo serves a URL (often `http://localhost:8081` or the chosen `--port`; use `expo start --web` if validating web).
+2. Wait until Metro reports ready (poll dev server URL or log line, max 60s for cold start).
+3. **Deep browser validation** (Expo web export / web mode):
+   - Use `browser_navigate` to the local Expo web URL
    - Use `browser_snapshot` to capture accessibility tree
    - Navigate the specific user flow affected by this feature
    - Use `browser_console_messages(level: "error")` — zero JS errors required
@@ -120,25 +118,52 @@ Use the ports allocated in Phase 0. This ensures multiple agents can run dev ser
 7. Create PR via `gh pr create` with summary and test plan
 
 ### Phase 8: CI Monitor & Fix Loop
-1. Wait for checks: `sleep 10`, then `gh pr checks <PR#> --watch --interval 30`
-2. **In parallel**: launch a `code-review-advisor` subagent for speculative self-review
-3. If CI passes → proceed to Phase 9
-4. If CI fails:
+
+This phase handles CI only. The code review lives entirely in Phase 9.
+
+1. **Classify CI**: After `sleep 10`, run `gh pr checks <PR#>` (once).
+   - **Checks present** → `gh pr checks <PR#> --watch --interval 30` until completion. Record `ci_status: pass` or `ci_status: fail`.
+   - **No checks** (empty / "no checks reported") → record `ci_status: none`. Do **not** wait.
+2. If `ci_status: none` → proceed directly to Phase 9.
+3. If `ci_status: pass` → proceed to Phase 9.
+4. If `ci_status: fail`:
    - Read failure logs: `gh run view <RUN_ID> --log-failed`
    - Analyze and fix the code
    - Stage, commit, push the fix
    - Return to step 1 (max 3 CI fix cycles)
-5. If CI still fails after 3 cycles, stop and report the blocker
+5. If CI still fails after 3 cycles, stop and report the blocker.
 
-### Phase 9: Self-Review & Fix Loop
-1. Use the speculative review from Phase 8, or run `/review-pr` now
-2. The review produces: `VERDICT: APPROVE` or `VERDICT: REQUEST_CHANGES`
-3. If `VERDICT: APPROVE` → proceed to Phase 10
-4. If `VERDICT: REQUEST_CHANGES`:
-   - Fix all blocking issues
-   - Stage, commit, push fixes
-   - Return to Phase 8 step 1 (max 2 review-fix cycles)
-5. If still REQUEST_CHANGES after 2 cycles, stop and report remaining issues
+### Phase 9: Quality Gate — Full `review-pr` (merge gate)
+
+**Hard rule — do not enter Phase 10 until this phase yields `VERDICT: APPROVE`.**
+
+The quality gate is **always** a full execution of `.claude/commands/review-pr.md`. There are no shortcuts — an informal skim, a mental check, or a single-agent summary does **not** satisfy this phase.
+
+> **Why always full?** When `ci_status: none` (no GitHub Actions configured), this review is the **only** automated quality signal before merge. Even when CI passes, it only validates lint/types/build — not security, conventions, or architectural fitness. The four-lane structured review catches what CI cannot.
+
+#### 9.1 Execute `review-pr.md`
+
+Read `.claude/commands/review-pr.md` and follow **every** step:
+
+1. **Gather changes**: `gh pr diff <PR#>` and `gh pr view <PR#>` (or `git diff <base>...HEAD` if PR metadata is unavailable).
+2. **Launch the four parallel review lanes** (review-pr § 2):
+   - Use **parallel Task subagents** (`subagent_type: "generalPurpose"`) — one per lane (Security, Quality, Patterns, Testing).
+   - Each subagent receives: (a) the full diff text, (b) the lane-specific checklist from `review-pr.md`, and (c) paths to the context docs it must read (e.g. `docs/SECURITY.md`, `docs/CONVENTIONS.md`, `docs/PRODUCT_SENSE.md`, `docs/RELIABILITY.md`).
+   - If the Task tool is unavailable (e.g. readonly mode), perform all four reviews **sequentially in-context** — still follow every checklist item in `review-pr.md`.
+3. **Aggregate** and deduplicate findings per review-pr § 3.
+4. **Emit verdict** per review-pr § 4 on its own line: exactly `VERDICT: APPROVE` or `VERDICT: REQUEST_CHANGES`.
+
+#### 9.2 Verdict handling
+
+- `VERDICT: APPROVE` → proceed to Phase 10.
+- `VERDICT: REQUEST_CHANGES`:
+  1. Fix all blocking issues (critical + warning severity).
+  2. Stage, commit, push fixes.
+  3. **Re-entry depends on `ci_status`:**
+     - `ci_status` was `pass` or `fail` → return to **Phase 8 step 1** (re-check CI on the new push, then re-enter Phase 9.1).
+     - `ci_status` was `none` → return to **Phase 9.1** directly (no CI to re-check).
+  4. On every re-review, run the **full four-lane review again** — never reuse a previous verdict for code that changed.
+  5. Max **2 review-fix cycles** total. If still `REQUEST_CHANGES` after 2 cycles, stop and report remaining issues.
 
 ### Phase 9b: Root Cause Analysis & Immediate Learning
 
@@ -160,6 +185,9 @@ Use the ports allocated in Phase 0. This ensures multiple agents can run dev ser
 5. **Append root cause summary** to the PR description
 
 ### Phase 10: Auto-Merge (Conflict-Aware)
+
+**Precondition:** Phase 9 ended with `VERDICT: APPROVE` for the current head of the PR branch. If not, return to Phase 9.
+
 1. Verify PR is mergeable: `gh pr view --json mergeable,mergeStateStatus`
 2. If not mergeable:
    - Attempt rebase: `git fetch origin main && git rebase origin/main`
@@ -205,6 +233,7 @@ Use the ports allocated in Phase 0. This ensures multiple agents can run dev ser
 
 ## Important Rules
 - Never skip validation. Fix errors before creating the PR.
+- **Never merge (Phase 10) without `VERDICT: APPROVE` from Phase 9.** Phase 9 always executes the full `.claude/commands/review-pr.md` — there is no shortcut path, regardless of CI status.
 - Stage files explicitly — never use `git add .` or `git add -A`
 - If a task touches > 15 files, break it into subtasks first
 - If tests fail after 3 attempts, stop and report the issue
