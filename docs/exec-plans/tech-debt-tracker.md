@@ -55,3 +55,4 @@ Machine-readable task backlog. Single source of truth for all work items.
 
 | ID | Task | Area | Effort | Status | Notes |
 |----|------|------|--------|--------|-------|
+| FEAT-1 | Add remote repo check to setup-workflow command | workflow | 0.25d | in-progress | Phase 0: detect remote, offer to create via gh CLI |
