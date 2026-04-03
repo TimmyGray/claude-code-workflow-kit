@@ -184,11 +184,11 @@ Review each command file in `.claude/commands/` and adapt project-specific refer
    - If user selected `false` for Auto-merge: Adapt Phase 10 in `develop-feature.md` to be "Manual Merge Readiness". Remove the `gh pr merge` command. Instead, instruct the agent to leave the PR open, report the URL to the user, and stop the workflow without automatically merging or deleting the branch.
    - If user selected `true`: Leave Phase 10 as "Auto-Merge".
 
-5. **i18n-dev.md**: If i18n is needed, adapt locale list and import patterns. If not needed, note in the file that it's inactive.
+6. **i18n-dev.md**: If i18n is needed, adapt locale list and import patterns. If not needed, note in the file that it's inactive.
 
-6. **add-feature.md**: Update design principle checks to match PRODUCT_SENSE.md
+7. **add-feature.md**: Update design principle checks to match PRODUCT_SENSE.md
 
-7. **update-roadmap.md**: Verify the command is usable for this project
+8. **update-roadmap.md**: Verify the command is usable for this project
    - Confirm that `docs/PRODUCT_SENSE.md`, `docs/PLANS.md`, and `docs/exec-plans/tech-debt-tracker.md` exist and are populated
    - The command's web research phase will auto-detect the project's domain from these docs
    - No project-specific edits needed — the command is domain-agnostic by design

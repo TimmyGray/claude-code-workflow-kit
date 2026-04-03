@@ -151,7 +151,7 @@ The quality gate is **always** a full execution of `.claude/commands/review-pr.m
 > **Why always full?** When `ci_status: none` (no GitHub Actions configured), this review is the **only** automated quality signal before merge. Even when CI passes, it only validates lint/types/build — not security, conventions, or architectural fitness. The four-lane structured review catches what CI cannot.
 
 <!-- AGENT_HOOK:start:reviewer-delegation -->
-**Agent Delegation:** If `.claude/agents/reviewer-agent/SKILL.md` exists, use it as the review subagent for all 4 review lanes. The reviewer-agent has project-specific convention knowledge that produces higher-quality reviews. Fall back to generic `generalPurpose` subagents if the reviewer-agent is missing.
+**Agent Delegation:** If `.claude/agents/reviewer-agent/SKILL.md` exists, use it to coordinate the review. The reviewer-agent has project-specific convention knowledge and will further delegate the 4 review lanes to specialists as defined in `review-pr.md`. Fall back to generic `generalPurpose` subagents if the reviewer-agent is missing.
 <!-- AGENT_HOOK:end:reviewer-delegation -->
 
 #### 9.1 Execute `review-pr.md`

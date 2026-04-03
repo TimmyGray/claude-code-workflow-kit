@@ -269,7 +269,7 @@ If agents don't exist or Task subagents are unavailable, follow the inline instr
 Insert before step 9.1:
 ```
 <!-- AGENT_HOOK:start:reviewer-delegation -->
-**Agent Delegation:** If `.claude/agents/reviewer-agent/SKILL.md` exists, use it as the review subagent for all 4 review lanes. The reviewer-agent has project-specific convention knowledge that produces higher-quality reviews. Fall back to generic `generalPurpose` subagents if the reviewer-agent is missing.
+**Agent Delegation:** If `.claude/agents/reviewer-agent/SKILL.md` exists, use it to coordinate the review. The reviewer-agent has project-specific convention knowledge and will further delegate the 4 review lanes to specialists as defined in `review-pr.md`. Fall back to generic `generalPurpose` subagents if the reviewer-agent is missing.
 <!-- AGENT_HOOK:end:reviewer-delegation -->
 ```
 
