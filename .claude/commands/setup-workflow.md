@@ -79,6 +79,7 @@ Ask the user clarifying questions in a **single batch** using AskUserQuestion. O
 8. **Testing status**: "How would you describe current test coverage? (none, minimal, moderate, good)"
 9. **Logging**: "What logging library do you use, if any?"
 10. **Component library**: "What UI component library do you use?" (frontend only)
+11. **Auto-merge**: "Should the autonomous workflow automatically merge PRs after review, or leave them open for human approval? (true/false)"
 
 ### Phase 3: Fill Documentation Templates
 
@@ -179,11 +180,15 @@ Review each command file in `.claude/commands/` and adapt project-specific refer
    - Update or remove i18n checks if not applicable
    - Update pattern checks for the project's framework
 
-5. **i18n-dev.md**: If i18n is needed, adapt locale list and import patterns. If not needed, note in the file that it's inactive.
+5. **Auto-merge preference (develop-feature.md)**:
+   - If user selected `false` for Auto-merge: Adapt Phase 10 in `develop-feature.md` to be "Manual Merge Readiness". Remove the `gh pr merge` command. Instead, instruct the agent to leave the PR open, report the URL to the user, and stop the workflow without automatically merging or deleting the branch.
+   - If user selected `true`: Leave Phase 10 as "Auto-Merge".
 
-6. **add-feature.md**: Update design principle checks to match PRODUCT_SENSE.md
+6. **i18n-dev.md**: If i18n is needed, adapt locale list and import patterns. If not needed, note in the file that it's inactive.
 
-7. **update-roadmap.md**: Verify the command is usable for this project
+7. **add-feature.md**: Update design principle checks to match PRODUCT_SENSE.md
+
+8. **update-roadmap.md**: Verify the command is usable for this project
    - Confirm that `docs/PRODUCT_SENSE.md`, `docs/PLANS.md`, and `docs/exec-plans/tech-debt-tracker.md` exist and are populated
    - The command's web research phase will auto-detect the project's domain from these docs
    - No project-specific edits needed — the command is domain-agnostic by design
@@ -228,6 +233,7 @@ Review each command file in `.claude/commands/` and adapt project-specific refer
 2. Run `/add-feature` to add more tasks to the backlog
 3. Run `/develop-feature` to start autonomous development
 4. Run `/update-roadmap` quarterly to refresh the roadmap with industry research
+5. Run `/generate-agents` to create project-aware specialist agents for your team
 ```
 
 ## Important Rules

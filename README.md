@@ -11,6 +11,7 @@ This is a **generic, reusable workflow system** extracted from a battle-tested p
 - Continuously scan for technical debt and fix it
 - Keep documentation in sync with code
 - Learn from its own mistakes and promote findings into lint rules
+- Generate and delegate to project-aware specialist subagents (e.g., frontend, architect)
 
 ## The Workflow Loop
 
@@ -57,9 +58,10 @@ This command will:
 6. **Run baseline validation** — capture initial quality metrics
 7. **Commit everything** — ready to go
 
-### 3. Start developing
+### 3. Generate agents and start developing
 
 ```
+/generate-agents   # Create project-aware specialist agents (recommended)
 /add-feature       # Add a task to the backlog
 /develop-feature   # Pick the next task and implement it autonomously
 ```
@@ -69,6 +71,8 @@ This command will:
 | Command | What It Does | When to Use |
 |---------|-------------|-------------|
 | `/setup-workflow` | Analyze project, fill docs, create roadmap | First time only |
+| `/generate-agents` | Generate project-aware specialist agents | After setup or major tech changes |
+| `/rollback-agents` | Undo command patches and optionally remove agents | If agent integration causes issues |
 | `/add-feature` | Interactive backlog intake with duplicate detection | When you have a new idea |
 | `/develop-feature [ID]` | Full autonomous dev: implement → test → PR → review → merge | To implement any task |
 | `/validate` | Run lint + typecheck + test + build + staged completeness | Before any PR |
@@ -105,8 +109,14 @@ your-project/
 │   │   └── completed/                 # Archived execution plans
 │   └── references/                    # Framework/API reference docs
 ├── .claude/
+│   ├── agents/                        # Generated specialist subagents (committed)
+│   │   ├── _manifest.json             # Registry of available agents
+│   │   ├── _patches.json              # Registry of patched commands
+│   │   └── *-agent/                   # Subagent personas and capability files
 │   └── commands/
 │       ├── setup-workflow.md          # First-time project setup
+│       ├── generate-agents.md         # Specialist agent generator
+│       ├── rollback-agents.md         # Rollback agent patches
 │       ├── add-feature.md             # Backlog intake
 │       ├── develop-feature.md         # Autonomous feature dev (12 phases)
 │       ├── review-pr.md              # Multi-agent PR review
