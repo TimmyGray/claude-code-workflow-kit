@@ -37,6 +37,10 @@ $ARGUMENTS — Optional: a short description of the feature or task. If empty, a
 
 ### Phase 3: Classification
 
+<!-- AGENT_HOOK:start:planner-classification -->
+**Agent Delegation:** If `.claude/agents/planner-agent/SKILL.md` exists, spawn it for effort estimation and roadmap alignment check. The planner-agent has context about current sprint load, backlog priorities, and historical velocity from its memory system. Fall back to inline classification if the agent is missing.
+<!-- AGENT_HOOK:end:planner-classification -->
+
 1. **Type and ID prefix**:
    - `FEAT-#` — New user-facing feature
    - `B-C#` / `B-H#` / `B-M#` / `B-L#` — Backend tasks by priority

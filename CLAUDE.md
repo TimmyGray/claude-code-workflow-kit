@@ -34,6 +34,8 @@ npm test                 # Run all tests
 | `/setup-workflow` | First-time setup: analyze project, fill docs, create roadmap |
 | `/add-feature` | Add feature or task to backlog interactively |
 | `/develop-feature` | Pick next task, implement end-to-end, PR, merge |
+| `/generate-agents` | Generate project-aware specialist agents (or a single custom agent) |
+| `/rollback-agents` | Undo command patches and optionally remove generated agents |
 | `/validate` | Before creating a PR |
 | `/review-pr` | After implementation, before merge |
 | `/audit-service` | Auto: every 5 features (or manual) |

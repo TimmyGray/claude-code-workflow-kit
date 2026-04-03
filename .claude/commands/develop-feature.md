@@ -70,6 +70,15 @@ Isolate the working tree so multiple `/develop-feature` agents can run concurren
 3. Plan the implementation: list files to create/modify, tests to write
 
 ### Phase 4: Implementation
+
+<!-- AGENT_HOOK:start:implementation-routing -->
+**Agent Delegation:** Before implementing, detect the task area. If specialist agents exist in `.claude/agents/`:
+- Backend-only task → read `.claude/agents/backend-agent/SKILL.md` and delegate implementation
+- Frontend-only task → read `.claude/agents/frontend-agent/SKILL.md` and delegate implementation
+- Full-stack task → spawn both as parallel Task subagents, each handling their domain
+If agents don't exist or Task subagents are unavailable, follow the inline instructions below.
+<!-- AGENT_HOOK:end:implementation-routing -->
+
 1. Implement the changes following project conventions (see `docs/CONVENTIONS.md`)
 2. Write tests for new functionality
 3. Follow patterns from `docs/references/` if applicable
@@ -140,6 +149,10 @@ This phase handles CI only. The code review lives entirely in Phase 9.
 The quality gate is **always** a full execution of `.claude/commands/review-pr.md`. There are no shortcuts — an informal skim, a mental check, or a single-agent summary does **not** satisfy this phase.
 
 > **Why always full?** When `ci_status: none` (no GitHub Actions configured), this review is the **only** automated quality signal before merge. Even when CI passes, it only validates lint/types/build — not security, conventions, or architectural fitness. The four-lane structured review catches what CI cannot.
+
+<!-- AGENT_HOOK:start:reviewer-delegation -->
+**Agent Delegation:** If `.claude/agents/reviewer-agent/SKILL.md` exists, use it as the review subagent for all 4 review lanes. The reviewer-agent has project-specific convention knowledge that produces higher-quality reviews. Fall back to generic `generalPurpose` subagents if the reviewer-agent is missing.
+<!-- AGENT_HOOK:end:reviewer-delegation -->
 
 #### 9.1 Execute `review-pr.md`
 
@@ -216,6 +229,10 @@ Read `.claude/commands/review-pr.md` and follow **every** step:
 4. **Unregister from active-work registry**: Remove own entry from `active-work.json`
 
 ### Phase 12: Maintenance Cadence Check
+
+<!-- AGENT_HOOK:start:planner-maintenance -->
+**Agent Delegation:** If `.claude/agents/planner-agent/SKILL.md` exists, spawn it for maintenance cadence assessment. It has cross-session memory of sprint state and can make smarter decisions about which maintenance tasks are overdue.
+<!-- AGENT_HOOK:end:planner-maintenance -->
 
 1. Read `docs/exec-plans/maintenance-cadence.json`
    - If missing, create with default thresholds (sweep: 3, audit: 5, retrospective: 10)

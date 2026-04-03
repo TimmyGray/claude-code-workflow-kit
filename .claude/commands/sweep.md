@@ -19,6 +19,14 @@ Read these files to understand current standards:
 
 Run these scans across all source directories (exclude `node_modules`, `dist`, build artifacts):
 
+<!-- AGENT_HOOK:start:sweep-specialists -->
+**Agent Delegation:** If specialist agents exist in `.claude/agents/`, delegate scan categories:
+- Code quality + pattern violations → `.claude/agents/reviewer-agent/SKILL.md`
+- Architecture violations → `.claude/agents/architect-agent/SKILL.md`
+- Test coverage gaps → `.claude/agents/tester-agent/SKILL.md`
+Run as parallel Task subagents if available. Aggregate all findings before moving to prioritization step. Fall back to inline scanning if agents are missing.
+<!-- AGENT_HOOK:end:sweep-specialists -->
+
 **Code Quality Violations:**
 - [ ] Files > 300 lines → should be split
 - [ ] Functions/methods > 50 lines → should be decomposed

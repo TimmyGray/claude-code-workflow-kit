@@ -15,6 +15,14 @@ Run and capture results (adapt commands to your project's stack):
 - Bundle/artifact sizes
 
 ### 2. Code Quality Scan
+
+<!-- AGENT_HOOK:start:audit-specialists -->
+**Agent Delegation:** If specialist agents exist in `.claude/agents/`, delegate audit work:
+- Code quality scan → `.claude/agents/architect-agent/SKILL.md` + `.claude/agents/tester-agent/SKILL.md` (parallel)
+- Tech debt prioritization → `.claude/agents/planner-agent/SKILL.md`
+Agents provide deeper project-specific context than generic inline scanning. Fall back to inline approach if agents are missing.
+<!-- AGENT_HOOK:end:audit-specialists -->
+
 Read source files and scan for:
 - Anti-patterns (deeply nested callbacks, large files > 300 lines, functions > 50 lines)
 - Missing error handling

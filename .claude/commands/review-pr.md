@@ -20,6 +20,15 @@ If no PR number:
 
 Launch these reviews as parallel Task agents (`subagent_type: "generalPurpose"`). Each agent reviews the diff from a different perspective:
 
+<!-- AGENT_HOOK:start:specialist-reviewers -->
+**Agent Delegation:** If specialist agents exist in `.claude/agents/`, use them for review lanes:
+- Agent A (Security) → `.claude/agents/architect-agent/SKILL.md` (has `docs/SECURITY.md` context)
+- Agent B (Quality) → `.claude/agents/reviewer-agent/SKILL.md` (has `docs/CONVENTIONS.md` + core-beliefs context)
+- Agent C (Patterns) → `.claude/agents/frontend-agent/SKILL.md` or `.claude/agents/backend-agent/SKILL.md` depending on diff content
+- Agent D (Testing) → `.claude/agents/tester-agent/SKILL.md` (has `docs/RELIABILITY.md` + `QUALITY_SCORE.md` context)
+Fall back to generic `generalPurpose` subagents if any specialist is missing.
+<!-- AGENT_HOOK:end:specialist-reviewers -->
+
 **Agent A: Security Review**
 - Read `docs/SECURITY.md` for context
 - Check: no secrets/API keys, input validation, path traversal, XSS, error leakage
